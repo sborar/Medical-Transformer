@@ -59,7 +59,7 @@ parser.add_argument('--save', default='default', type=str,
 parser.add_argument('--direc', default='./medt', type=str,
                     help='directory to save')
 parser.add_argument('--crop', type=int, default=None)
-parser.add_argument('--imgsize', type=int, default=None)
+parser.add_argument('--imgsize', type=int, default=128)
 parser.add_argument('--device', default='cuda', type=str)
 parser.add_argument('--gray', default='no', type=str)
 
@@ -85,12 +85,12 @@ else:
 tf_train = JointTransform2D(crop=crop, p_flip=0.5, color_jitter_params=None, long_mask=True)
 tf_val = JointTransform2D(crop=crop, p_flip=0, color_jitter_params=None, long_mask=True)
 train_dataset = ImageToImage2D(args.train_dataset, tf_val)
-val_dataset = ImageToImage2D(args.val_dataset, tf_val)
-predict_dataset = Image2D(args.val_dataset)
+# val_dataset = ImageToImage2D(args.val_dataset, tf_val)
+# predict_dataset = Image2D(args.val_dataset)
 dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
-valloader = DataLoader(val_dataset, 1, shuffle=True)
+# valloader = DataLoader(val_dataset, 1, shuffle=True)
 
-device = torch.device("cuda")
+device = args.device
 
 if modelname == "axialunet":
     model = lib.models.axialunet(img_size = imgsize, imgchan = imgchant)
@@ -104,7 +104,7 @@ elif modelname == "logo":
 if torch.cuda.device_count() > 1:
   print("Let's use", torch.cuda.device_count(), "GPUs!")
   # dim = 0 [30, xxx] -> [10, ...], [10, ...], [10, ...] on 3 GPUs
-  model = nn.DataParallel(model,device_ids=[0,1]).cuda()
+  model = nn.DataParallel(model,device_ids=[0,1])
 model.to(device)
 
 criterion = LogNLLLoss()
@@ -131,8 +131,8 @@ for epoch in range(args.epochs):
         
         
 
-        X_batch = Variable(X_batch.to(device ='cuda'))
-        y_batch = Variable(y_batch.to(device='cuda'))
+        X_batch = Variable(X_batch.to(device =device))
+        y_batch = Variable(y_batch.to(device=device))
         
         # ===================forward=====================
         
@@ -178,8 +178,8 @@ for epoch in range(args.epochs):
             else:
                         image_filename = '%s.png' % str(batch_idx + 1).zfill(3)
 
-            X_batch = Variable(X_batch.to(device='cuda'))
-            y_batch = Variable(y_batch.to(device='cuda'))
+            X_batch = Variable(X_batch.to(device=device))
+            y_batch = Variable(y_batch.to(device=device))
             # start = timeit.default_timer()
             y_out = model(X_batch)
             # stop = timeit.default_timer()

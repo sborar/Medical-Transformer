@@ -130,6 +130,7 @@ class ImageToImage2D(Dataset):
         self.input_path = os.path.join(dataset_path, 'img')
         self.output_path = os.path.join(dataset_path, 'labelcol')
         self.images_list = os.listdir(self.input_path)
+        self.mask_list = os.listdir(self.output_path)
         self.one_hot_mask = one_hot_mask
 
         if joint_transform:
@@ -143,16 +144,19 @@ class ImageToImage2D(Dataset):
 
     def __getitem__(self, idx):
         image_filename = self.images_list[idx]
+        mask_filename =  self.mask_list[idx]
         #print(image_filename[: -3])
         # read image
         # print(os.path.join(self.input_path, image_filename))
         # print(os.path.join(self.output_path, image_filename[: -3] + "png"))
         # print(os.path.join(self.input_path, image_filename))
         image = cv2.imread(os.path.join(self.input_path, image_filename))
+        image = cv2.resize(image,(128,128))
         # print(image.shape)
         # read mask image
-        mask = cv2.imread(os.path.join(self.output_path, image_filename[: -3] + "png"),0)
-        
+        mask = cv2.imread(os.path.join(self.output_path, mask_filename),0)
+        mask = cv2.resize(mask,(128,128))
+
         mask[mask<=127] = 0
         mask[mask>127] = 1
         # correct dimensions if needed
