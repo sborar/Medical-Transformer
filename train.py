@@ -60,7 +60,7 @@ parser.add_argument('--direc', default='./medt', type=str,
                     help='directory to save')
 parser.add_argument('--crop', type=int, default=None)
 parser.add_argument('--imgsize', type=int, default=128)
-parser.add_argument('--device', default='cuda', type=str)
+parser.add_argument('--device', default='cpu', type=str)
 parser.add_argument('--gray', default='no', type=str)
 
 args = parser.parse_args()
@@ -82,12 +82,16 @@ if args.crop is not None:
 else:
     crop = None
 
+def collate_fn(batch):
+    batch = list(filter(lambda x: x[0] is not None and x[1] is not None, batch))
+    return torch.utils.data.dataloader.default_collate(batch)
+
 tf_train = JointTransform2D(crop=crop, p_flip=0.5, color_jitter_params=None, long_mask=True)
 tf_val = JointTransform2D(crop=crop, p_flip=0, color_jitter_params=None, long_mask=True)
 train_dataset = ImageToImage2D(args.train_dataset, tf_val)
 # val_dataset = ImageToImage2D(args.val_dataset, tf_val)
 # predict_dataset = Image2D(args.val_dataset)
-dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
+dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, collate_fn=collate_fn)
 # valloader = DataLoader(val_dataset, 1, shuffle=True)
 
 device = args.device

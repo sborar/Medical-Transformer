@@ -150,14 +150,17 @@ class ImageToImage2D(Dataset):
         # print(os.path.join(self.input_path, image_filename))
         # print(os.path.join(self.output_path, image_filename[: -3] + "png"))
         # print(os.path.join(self.input_path, image_filename))
-        image = cv2.imread(os.path.join(self.input_path, image_filename))
-        print(image_filename)
-        image = cv2.resize(image,(128,128))
+        try:
+            image = cv2.imread(os.path.join(self.input_path, image_filename))
+            image = cv2.resize(image,(128,128))
+            mask = cv2.imread(os.path.join(self.output_path, mask_filename))
+            mask = cv2.resize(mask,(128,128))
+        except Exception as e:
+            print(str(e))
+            return None, None, None
         # print(image.shape)
         # read mask image
-        mask = cv2.imread(os.path.join(self.output_path, mask_filename),0)
-        print(mask_filename)
-        mask = cv2.resize(mask,(128,128))
+
 
         mask[mask<=127] = 0
         mask[mask>127] = 1
