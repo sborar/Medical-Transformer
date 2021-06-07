@@ -85,10 +85,10 @@ else:
 tf_train = JointTransform2D(crop=crop, p_flip=0.5, color_jitter_params=None, long_mask=True)
 tf_val = JointTransform2D(crop=crop, p_flip=0, color_jitter_params=None, long_mask=True)
 train_dataset = ImageToImage2D(args.train_dataset, tf_val)
-# val_dataset = ImageToImage2D(args.val_dataset, tf_val)
-# predict_dataset = Image2D(args.val_dataset)
+val_dataset = ImageToImage2D(args.val_dataset, tf_val)
+predict_dataset = Image2D(args.val_dataset)
 dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
-# valloader = DataLoader(val_dataset, 1, shuffle=True)
+valloader = DataLoader(val_dataset, 1, shuffle=True)
 
 device = args.device
 
@@ -136,39 +136,39 @@ for epoch in range(args.epochs):
 
         # ===================forward=====================
 
-
-        output = model(X_batch)
-
-        tmp2 = y_batch.detach().cpu().numpy()
-        tmp = output.detach().cpu().numpy()
-        tmp[tmp>=0.5] = 1
-        tmp[tmp<0.5] = 0
-        tmp2[tmp2>0] = 1
-        tmp2[tmp2<=0] = 0
-        tmp2 = tmp2.astype(int)
-        tmp = tmp.astype(int)
-
-        yHaT = tmp
-        yval = tmp2
-
-
-
-        loss = criterion(output, y_batch)
-
-        # ===================backward====================
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-        epoch_running_loss += loss.item()
-
-    # ===================log========================
-    print('epoch [{}/{}], loss:{:.4f}'
-          .format(epoch, args.epochs, epoch_running_loss/(batch_idx+1)))
-
-
-    if epoch == 10:
-        for param in model.parameters():
-            param.requires_grad =True
+    #
+    #     output = model(X_batch)
+    #
+    #     tmp2 = y_batch.detach().cpu().numpy()
+    #     tmp = output.detach().cpu().numpy()
+    #     tmp[tmp>=0.5] = 1
+    #     tmp[tmp<0.5] = 0
+    #     tmp2[tmp2>0] = 1
+    #     tmp2[tmp2<=0] = 0
+    #     tmp2 = tmp2.astype(int)
+    #     tmp = tmp.astype(int)
+    #
+    #     yHaT = tmp
+    #     yval = tmp2
+    #
+    #
+    #
+    #     loss = criterion(output, y_batch)
+    #
+    #     # ===================backward====================
+    #     optimizer.zero_grad()
+    #     loss.backward()
+    #     optimizer.step()
+    #     epoch_running_loss += loss.item()
+    #
+    # # ===================log========================
+    # print('epoch [{}/{}], loss:{:.4f}'
+    #       .format(epoch, args.epochs, epoch_running_loss/(batch_idx+1)))
+    #
+    #
+    # if epoch == 10:
+    #     for param in model.parameters():
+    #         param.requires_grad =True
     if (epoch % args.save_freq) ==0:
 
         for batch_idx, (X_batch, y_batch, *rest) in enumerate(valloader):
