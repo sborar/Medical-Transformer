@@ -136,39 +136,39 @@ for epoch in range(args.epochs):
 
         # ===================forward=====================
 
-    #
-    #     output = model(X_batch)
-    #
-    #     tmp2 = y_batch.detach().cpu().numpy()
-    #     tmp = output.detach().cpu().numpy()
-    #     tmp[tmp>=0.5] = 1
-    #     tmp[tmp<0.5] = 0
-    #     tmp2[tmp2>0] = 1
-    #     tmp2[tmp2<=0] = 0
-    #     tmp2 = tmp2.astype(int)
-    #     tmp = tmp.astype(int)
-    #
-    #     yHaT = tmp
-    #     yval = tmp2
-    #
-    #
-    #
-    #     loss = criterion(output, y_batch)
-    #
-    #     # ===================backward====================
-    #     optimizer.zero_grad()
-    #     loss.backward()
-    #     optimizer.step()
-    #     epoch_running_loss += loss.item()
-    #
-    # # ===================log========================
-    # print('epoch [{}/{}], loss:{:.4f}'
-    #       .format(epoch, args.epochs, epoch_running_loss/(batch_idx+1)))
-    #
-    #
-    # if epoch == 10:
-    #     for param in model.parameters():
-    #         param.requires_grad =True
+
+        output = model(X_batch)
+
+        tmp2 = y_batch.detach().cpu().numpy()
+        tmp = output.detach().cpu().numpy()
+        tmp[tmp>=0.5] = 1
+        tmp[tmp<0.5] = 0
+        tmp2[tmp2>0] = 1
+        tmp2[tmp2<=0] = 0
+        tmp2 = tmp2.astype(int)
+        tmp = tmp.astype(int)
+
+        yHaT = tmp
+        yval = tmp2
+
+
+
+        loss = criterion(output, y_batch)
+
+        # ===================backward====================
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        epoch_running_loss += loss.item()
+
+    # ===================log========================
+    print('epoch [{}/{}], loss:{:.4f}'
+          .format(epoch, args.epochs, epoch_running_loss/(batch_idx+1)))
+
+
+    if epoch == 10:
+        for param in model.parameters():
+            param.requires_grad =True
     if (epoch % args.save_freq) ==0:
 
         for batch_idx, (X_batch, y_batch, *rest) in enumerate(valloader):
