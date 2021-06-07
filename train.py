@@ -82,16 +82,12 @@ if args.crop is not None:
 else:
     crop = None
 
-def collate_fn(batch):
-    batch = list(filter(lambda x: x[0] is not None and x[1] is not None, batch))
-    return torch.utils.data.dataloader.default_collate(batch)
-
 tf_train = JointTransform2D(crop=crop, p_flip=0.5, color_jitter_params=None, long_mask=True)
 tf_val = JointTransform2D(crop=crop, p_flip=0, color_jitter_params=None, long_mask=True)
 train_dataset = ImageToImage2D(args.train_dataset, tf_val)
 # val_dataset = ImageToImage2D(args.val_dataset, tf_val)
 # predict_dataset = Image2D(args.val_dataset)
-dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, collate_fn=collate_fn)
+dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
 # valloader = DataLoader(val_dataset, 1, shuffle=True)
 
 device = args.device
@@ -106,9 +102,9 @@ elif modelname == "logo":
     model = lib.models.axialnet.logo(img_size = imgsize, imgchan = imgchant)
 
 if torch.cuda.device_count() > 1:
-  print("Let's use", torch.cuda.device_count(), "GPUs!")
-  # dim = 0 [30, xxx] -> [10, ...], [10, ...], [10, ...] on 3 GPUs
-  model = nn.DataParallel(model,device_ids=[0,1])
+    print("Let's use", torch.cuda.device_count(), "GPUs!")
+    # dim = 0 [30, xxx] -> [10, ...], [10, ...], [10, ...] on 3 GPUs
+    model = nn.DataParallel(model,device_ids=[0,1])
 model.to(device)
 
 criterion = LogNLLLoss()
@@ -130,16 +126,16 @@ torch.cuda.manual_seed(seed)
 for epoch in range(args.epochs):
 
     epoch_running_loss = 0
-    
-    for batch_idx, (X_batch, y_batch, *rest) in enumerate(dataloader):        
-        
-        
+
+    for batch_idx, (X_batch, y_batch, *rest) in enumerate(dataloader):
+
+
 
         X_batch = Variable(X_batch.to(device =device))
         y_batch = Variable(y_batch.to(device=device))
-        
+
         # ===================forward=====================
-        
+
 
         output = model(X_batch)
 
@@ -155,21 +151,21 @@ for epoch in range(args.epochs):
         yHaT = tmp
         yval = tmp2
 
-        
+
 
         loss = criterion(output, y_batch)
-        
+
         # ===================backward====================
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
         epoch_running_loss += loss.item()
-        
+
     # ===================log========================
     print('epoch [{}/{}], loss:{:.4f}'
           .format(epoch, args.epochs, epoch_running_loss/(batch_idx+1)))
 
-    
+
     if epoch == 10:
         for param in model.parameters():
             param.requires_grad =True
@@ -178,9 +174,9 @@ for epoch in range(args.epochs):
         for batch_idx, (X_batch, y_batch, *rest) in enumerate(valloader):
             # print(batch_idx)
             if isinstance(rest[0][0], str):
-                        image_filename = rest[0][0]
+                image_filename = rest[0][0]
             else:
-                        image_filename = '%s.png' % str(batch_idx + 1).zfill(3)
+                image_filename = '%s.png' % str(batch_idx + 1).zfill(3)
 
             X_batch = Variable(X_batch.to(device=device))
             y_batch = Variable(y_batch.to(device=device))
@@ -202,23 +198,20 @@ for epoch in range(args.epochs):
             yval = tmp2
 
             epsilon = 1e-20
-            
+
             del X_batch, y_batch,tmp,tmp2, y_out
 
-            
+
             yHaT[yHaT==1] =255
             yval[yval==1] =255
             fulldir = direc+"/{}/".format(epoch)
             # print(fulldir+image_filename)
             if not os.path.isdir(fulldir):
-                
+
                 os.makedirs(fulldir)
-            
+
             cv2.imwrite(fulldir+image_filename, yHaT[0,1,:,:])
             # cv2.imwrite(fulldir+'/gt_{}.png'.format(count), yval[0,:,:])
         fulldir = direc+"/{}/".format(epoch)
         torch.save(model.state_dict(), fulldir+args.modelname+".pth")
         torch.save(model.state_dict(), direc+"final_model.pth")
-            
-
-
