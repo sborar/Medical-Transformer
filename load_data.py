@@ -43,7 +43,7 @@ for image_file in image_files:
             # checking if it is a file
             mask = np.load(gzip.open(f, 'rb'), allow_pickle=True)
             masks.append(mask)
-    except Error as e:
+    except Exception as e:
         print(e)
         continue
 
