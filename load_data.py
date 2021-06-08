@@ -1,10 +1,9 @@
 import glob
 import gzip
+import numpy as np
 import os
-import re
 from PIL import Image
 from os.path import join, isdir
-import numpy as np
 
 image_folder = None
 meta_folder = None
@@ -32,11 +31,11 @@ for image_file in image_files:
         pid_scanid = image_file.split('/')[-1][6:-4]
         print(pid_scanid)
 
-        meta_dataname = join(base,"meta_" + pid_scanid + ".pkz")
+        meta_dataname = join(base, "meta_" + pid_scanid + ".pkz")
         image = np.load(image_file, allow_pickle=True)["arr_0"]
         meta_data = np.load(gzip.open(meta_dataname, 'rb'), allow_pickle=True)
 
-        masksname = join(base,"mask_" + pid_scanid +"/")
+        masksname = join(base, "mask_" + pid_scanid + "/")
         masks = []
 
         for filename in os.listdir(masksname):
@@ -76,8 +75,8 @@ for image_file in image_files:
         x = image.shape[0]
 
         for i in range(x):
-            output_image_fname = join(body_part_folder, 'img', str(i)+ ".png")
-            output_label_fname = join(body_part_folder, 'labelcol', str(i)+".png")
+            output_image_fname = join(body_part_folder, 'img', str(i) + ".png")
+            output_label_fname = join(body_part_folder, 'labelcol', str(i) + ".png")
             Image.fromarray(np.uint8(image[i, :, :])).convert('RGB').resize((128, 128)).save(
                 output_image_fname)
             Image.fromarray(np.uint8(mask_rgb[i, :, :])).convert('RGB').resize((128, 128)).save(
