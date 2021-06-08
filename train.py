@@ -168,6 +168,9 @@ for epoch in range(args.epochs):
     logging.info('epoch [{}/{}], loss:{:.4f}'
           .format(epoch, args.epochs, epoch_running_loss/(batch_idx+1)))
 
+    print('epoch [{}/{}], loss:{:.4f}'
+          .format(epoch, args.epochs, epoch_running_loss/(batch_idx+1)))
+
 
     if epoch == 10:
         for param in model.parameters():
