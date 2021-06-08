@@ -50,30 +50,33 @@ for image_file in image_files:
     spacing = (meta_data['ND_SliceSpacing'], meta_data['PixelSpacing'][1], meta_data['PixelSpacing'][0])
 
     for mask_data in masks:
-        print('Saving masks')
+        print('Saving' + mask_data['name'])
         shape = mask_data['shape']  # shape of scan
         bbox = mask_data['bbox']
         cropped_mask = mask_data['roi']
         body_part_name = mask_data['name']
 
         mask = np.zeros(shape, dtype=np.bool)
+        try:
+            b = [bbox[i] for i in [0, 3, 1, 4, 2, 5]]  # get it in (z_min, z_max, y_min, y_max, x_min, x_max)
+            mask[b[0]: b[1], b[2]: b[3], b[4]: b[5]] = cropped_mask
 
-        b = [bbox[i] for i in [0, 3, 1, 4, 2, 5]]  # get it in (z_min, z_max, y_min, y_max, x_min, x_max)
-        mask[b[0]: b[1], b[2]: b[3], b[4]: b[5]] = cropped_mask
+            mask_rgb = (mask[:, :, :] * 255).astype(np.uint8)
 
-        mask_rgb = (mask[:, :, :] * 255).astype(np.uint8)
+            body_part_folder = join(raw_data_folder, body_part_name)
+            if not isdir(body_part_folder):
+                os.makedirs(join(body_part_folder, "img"))
+                os.makedirs(join(body_part_folder, "labelcol"))
 
-        body_part_folder = join(raw_data_folder, body_part_name)
-        if not isdir(body_part_folder):
-            os.makedirs(join(body_part_folder, "img"))
-            os.makedirs(join(body_part_folder, "labelcol"))
+            x = image.shape[0]
 
-        x = image.shape[0]
-
-        for i in range(x):
-            output_image_fname = join(body_part_folder, 'img', str(i) + ".png")
-            output_label_fname = join(body_part_folder, 'labelcol', str(i) + ".png")
-            Image.fromarray(np.uint8(image[i, :, :])).convert('RGB').resize((128, 128)).save(
-                output_image_fname)
-            Image.fromarray(np.uint8(mask_rgb[i, :, :])).convert('RGB').resize((128, 128)).save(
-                output_label_fname)
+            for i in range(x):
+                output_image_fname = join(body_part_folder, 'img', str(i) + ".png")
+                output_label_fname = join(body_part_folder, 'labelcol', str(i) + ".png")
+                Image.fromarray(np.uint8(image[i, :, :])).convert('RGB').resize((128, 128)).save(
+                    output_image_fname)
+                Image.fromarray(np.uint8(mask_rgb[i, :, :])).convert('RGB').resize((128, 128)).save(
+                    output_label_fname)
+        except Exception as e:
+            print(e)
+            continue
