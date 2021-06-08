@@ -5,23 +5,17 @@ import os
 from PIL import Image
 from os.path import join, isdir
 
-image_folder = None
-meta_folder = None
-mask_folder = None
-
 # use the meta name to put things in a certain folder
 base = "/azure-ml/mvinterns/deepmind-headneck-0/ct"
 
 image_dataname = "image*"
 
 raw_data_folder = "raw_dataset"
-# raw_data_folder = "~/sheetal_project/src/Medical-Transformer/raw_dataset"
-
 
 # get all files with pattern
 image_files = glob.glob(join(base, image_dataname))
-# for each file
 
+# for each file
 for image_file in image_files:
     try:
         pid_scanid = image_file.split('/')[-1][6:-4]
@@ -36,6 +30,7 @@ for image_file in image_files:
 
         for filename in os.listdir(masksname):
             f = join(masksname, filename)
+
             # checking if it is a file
             mask = np.load(gzip.open(f, 'rb'), allow_pickle=True)
             masks.append(mask)
