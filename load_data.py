@@ -50,7 +50,7 @@ for image_file in image_files:
     spacing = (meta_data['ND_SliceSpacing'], meta_data['PixelSpacing'][1], meta_data['PixelSpacing'][0])
 
     for mask_data in masks:
-        print('Saving' + mask_data['name'])
+        print('Saving ' + mask_data['name'])
         shape = mask_data['shape']  # shape of scan
         bbox = mask_data['bbox']
         cropped_mask = mask_data['roi']
@@ -80,3 +80,5 @@ for image_file in image_files:
         except Exception as e:
             print(e)
             continue
+
+    print()
