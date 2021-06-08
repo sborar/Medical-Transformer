@@ -13,8 +13,6 @@ mask_folder = None
 base = "/azure-ml/mvinterns/deepmind-headneck-0/ct"
 
 image_dataname = "image*"
-meta_dataname = "meta*"
-mask_dataname = "mask*"
 
 raw_data_folder = "raw_dataset"
 # raw_data_folder = "~/sheetal_project/src/Medical-Transformer/raw_dataset"
@@ -22,8 +20,6 @@ raw_data_folder = "raw_dataset"
 
 # get all files with pattern
 image_files = glob.glob(join(base, image_dataname))
-meta_files = glob.glob(join(base, meta_dataname))
-mask_files = glob.glob(join(base, mask_dataname))
 # for each file
 
 for image_file in image_files:
@@ -35,7 +31,7 @@ for image_file in image_files:
         image = np.load(image_file, allow_pickle=True)["arr_0"]
         meta_data = np.load(gzip.open(meta_dataname, 'rb'), allow_pickle=True)
 
-        masksname = join(base, "mask_" + pid_scanid + "/")
+        masksname = join(base, "masks_" + pid_scanid + "/")
         masks = []
 
         for filename in os.listdir(masksname):
