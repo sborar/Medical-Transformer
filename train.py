@@ -131,7 +131,7 @@ for epoch in range(args.epochs):
     epoch_running_loss = 0
 
     for batch_idx, (X_batch, y_batch, *rest) in enumerate(dataloader):
-
+        logging.info('epoch',epoch)
 
 
         X_batch = Variable(X_batch.to(device =device))
