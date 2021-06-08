@@ -26,6 +26,9 @@ import cv2
 from functools import partial
 from random import randint
 import timeit
+import logging
+
+logging.basicConfig(format='%(asctime)s %(message)s')
 
 parser = argparse.ArgumentParser(description='MedT')
 parser.add_argument('-j', '--workers', default=16, type=int, metavar='N',
@@ -162,7 +165,7 @@ for epoch in range(args.epochs):
         epoch_running_loss += loss.item()
 
     # ===================log========================
-    print('epoch [{}/{}], loss:{:.4f}'
+    logging.info('epoch [{}/{}], loss:{:.4f}'
           .format(epoch, args.epochs, epoch_running_loss/(batch_idx+1)))
 
 
