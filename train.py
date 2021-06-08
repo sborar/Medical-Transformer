@@ -28,7 +28,7 @@ from random import randint
 import timeit
 import logging
 
-logging.basicConfig(format='%(asctime)s %(message)s')
+logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
 
 parser = argparse.ArgumentParser(description='MedT')
 parser.add_argument('-j', '--workers', default=16, type=int, metavar='N',
