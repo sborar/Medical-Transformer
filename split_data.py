@@ -30,4 +30,4 @@ def split_dataset(structures):
                 copyfile(join(body_part_folder, 'labelcol', f), join(test_data_folder, 'labelcol', f))
 
 
-split_dataset(['Lung_L'])
+split_dataset(['Brain', 'SpinalCord'])
