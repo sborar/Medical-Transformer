@@ -33,11 +33,11 @@ logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
 parser = argparse.ArgumentParser(description='MedT')
 parser.add_argument('-j', '--workers', default=16, type=int, metavar='N',
                     help='number of data loading workers (default: 8)')
-parser.add_argument('--epochs', default=400, type=int, metavar='N',
+parser.add_argument('--epochs', default=15, type=int, metavar='N',
                     help='number of total epochs to run(default: 400)')
 parser.add_argument('--start-epoch', default=0, type=int, metavar='N',
                     help='manual epoch number (useful on restarts)')
-parser.add_argument('-b', '--batch_size', default=1, type=int,
+parser.add_argument('-b', '--batch_size', default=30, type=int,
                     metavar='N', help='batch size (default: 1)')
 parser.add_argument('--learning_rate', default=1e-3, type=float,
                     metavar='LR', help='initial learning rate (default: 0.001)')
@@ -168,11 +168,8 @@ for epoch in range(args.epochs):
     logging.info('epoch [{}/{}], loss:{:.4f}'
           .format(epoch, args.epochs, epoch_running_loss/(batch_idx+1)))
 
-    print('epoch [{}/{}], loss:{:.4f}'
-          .format(epoch, args.epochs, epoch_running_loss/(batch_idx+1)))
 
-
-    if epoch == 10:
+    if epoch == 2:
         for param in model.parameters():
             param.requires_grad =True
     if (epoch % args.save_freq) ==0:
