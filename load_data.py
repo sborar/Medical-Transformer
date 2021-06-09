@@ -66,8 +66,8 @@ for image_file in image_files:
             x = image.shape[0]
 
             for i in range(x):
-                output_image_fname = join(body_part_folder, 'img', pid_scanid + str(i) + ".png")
-                output_label_fname = join(body_part_folder, 'labelcol', pid_scanid + str(i) + ".png")
+                output_image_fname = join(body_part_folder, 'img', pid_scanid + "_"+ str(i) + ".png")
+                output_label_fname = join(body_part_folder, 'labelcol', pid_scanid + "_" + str(i) + ".png")
                 Image.fromarray(np.uint8(image[i, :, :])).convert('RGB').resize((128, 128)).save(
                     output_image_fname)
                 Image.fromarray(np.uint8(mask_rgb[i, :, :])).convert('RGB').resize((128, 128)).save(
