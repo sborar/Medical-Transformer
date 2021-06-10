@@ -46,7 +46,7 @@ parser.add_argument('--weight-decay', '--wd', default=1e-5, type=float,
 parser.add_argument('--train_dataset',  type=str)
 parser.add_argument('--val_dataset', type=str)
 parser.add_argument('--save_freq', type=int,default = 5)
-parser.add_argument('--modelname', default='off', type=str,
+parser.add_argument('--modelname', default='MedT', type=str,
                     help='name of the model to load')
 parser.add_argument('--cuda', default="on", type=str,
                     help='switch on/off cuda option (default: off)')
@@ -55,18 +55,19 @@ parser.add_argument('--direc', default='./results', type=str,
                     help='directory to save')
 parser.add_argument('--crop', type=int, default=None)
 parser.add_argument('--device', default='cuda', type=str)
-parser.add_argument('--loaddirec', default='load', type=str)
-parser.add_argument('--imgsize', type=int, default=None)
+parser.add_argument('--loaddirec', default='medtfinal_model.pth', type=str)
+parser.add_argument('--imgsize', type=int, default=128)
 parser.add_argument('--gray', default='no', type=str)
 args = parser.parse_args()
 
 direc = args.direc
 gray_ = args.gray
-aug = args.aug
+# aug = args.aug
 direc = args.direc
 modelname = args.modelname
 imgsize = args.imgsize
 loaddirec = args.loaddirec
+device = args.device
 
 if gray_ == "yes":
     from utils_gray import JointTransform2D, ImageToImage2D, Image2D
@@ -80,15 +81,11 @@ if args.crop is not None:
 else:
     crop = None
 
-tf_train = JointTransform2D(crop=crop, p_flip=0.5, color_jitter_params=None, long_mask=True)
 tf_val = JointTransform2D(crop=crop, p_flip=0, color_jitter_params=None, long_mask=True)
-train_dataset = ImageToImage2D(args.train_dataset, tf_val)
 val_dataset = ImageToImage2D(args.val_dataset, tf_val)
 predict_dataset = Image2D(args.val_dataset)
-dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
 valloader = DataLoader(val_dataset, 1, shuffle=True)
 
-device = torch.device("cuda")
 
 if modelname == "axialunet":
     model = lib.models.axialunet(img_size = imgsize, imgchan = imgchant)
@@ -99,10 +96,10 @@ elif modelname == "gatedaxialunet":
 elif modelname == "logo":
     model = lib.models.axialnet.logo(img_size = imgsize, imgchan = imgchant)
 
-if torch.cuda.device_count() > 1:
-  print("Let's use", torch.cuda.device_count(), "GPUs!")
-  # dim = 0 [30, xxx] -> [10, ...], [10, ...], [10, ...] on 3 GPUs
-  model = nn.DataParallel(model,device_ids=[0,1]).cuda()
+# if torch.cuda.device_count() > 1:
+#   print("Let's use", torch.cuda.device_count(), "GPUs!")
+#   # dim = 0 [30, xxx] -> [10, ...], [10, ...], [10, ...] on 3 GPUs
+#   model = nn.DataParallel(model,device_ids=[0,1])
 model.to(device)
 
 criterion = LogNLLLoss()
@@ -117,8 +114,8 @@ for batch_idx, (X_batch, y_batch, *rest) in enumerate(valloader):
     else:
                 image_filename = '%s.png' % str(batch_idx + 1).zfill(3)
 
-    X_batch = Variable(X_batch.to(device='cuda'))
-    y_batch = Variable(y_batch.to(device='cuda'))
+    X_batch = Variable(X_batch.to(device=device))
+    y_batch = Variable(y_batch.to(device=device))
 
     y_out = model(X_batch)
 

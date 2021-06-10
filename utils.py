@@ -280,3 +280,99 @@ class MetricList:
             return self.results
         else:
             return {key: value/normalize for key, value in self.results.items()}
+
+# def save_im(im: np.ndarray,
+#             pred: Union[np.ndarray, Masks] = None,
+#             gt: Union[np.ndarray, Masks] = None,
+#             clip_vals: Union[None, Tuple[float, float]] = (-200, 200),
+#             dir_save: str = None,
+#             name: str = 'name',
+#             colors: np.ndarray = None,
+#             quality: int = 6,
+#             line_width: int = 1,
+#             edge_filter: str = 'erosion',
+#             frame_rate: int = 10,
+#             save_avi: bool = True,
+#             save_jpg: bool = False,
+#             square: bool = True,
+#             min_sz: int = 512,
+#             norm: callable = norm_minmax,
+#             do_copy: bool = True,
+#             ):
+#     # todo: plot contours in Z-direction
+#     # todo: move through orthogonal views
+#     # gt_ col: green [0,1,0] for all organs
+#     # pred col: different for each organ
+#     # if not compressed:
+#     #     quality = 10  # 10 is for uncompressed videos
+#     if do_copy:
+#         im = im.copy()
+#
+#     if len(im.shape) == 4 and im.shape[-1] != 3:
+#         im = np.squeeze(im, axis=0)
+#     elif len(im.shape) not in [2, 3, 4]:
+#         raise Exception(f'image should be either 2D or 3D but its shape is: {im.shape}')
+#
+#     if isinstance(clip_vals, (tuple, list)):
+#         im = np.clip(im, clip_vals[0], clip_vals[1])
+#
+#     im = norm(im)
+#     im = (255 * im).round().astype(np.uint8)
+#
+#     if dir_save is None:
+#         dir_save = getcwd()
+#
+#     sz = np.array([im.shape[1], im.shape[2]])
+#     n_slices = im.shape[0]
+#
+#     scale = 1 if min_sz is None else max(min_sz / sz)
+#
+#     if pred is not None:
+#         n_cls = pred.shape[0] if isinstance(pred, np.ndarray) else len(pred.names2idx)
+#     elif gt is not None:
+#         n_cls = gt.shape[0] if isinstance(gt, np.ndarray) else len(gt.names2idx)
+#     else:
+#         n_cls = 1
+#
+#     if colors is None:
+#         colors = get_colors(n_cls)
+#
+#     line_width_gt = line_width + 0
+#     if edge_filter == 'roberts':
+#         edge_filter_fun = roberts
+#     elif edge_filter == 'sobel':
+#         edge_filter_fun = sobel
+#     elif edge_filter == 'dilation':  # dilation can often exceed the tight bbox, so do not use it with tightly cropped ROIs
+#         def edge_filter_fun(im_):
+#             ime = binary_dilation(im_)
+#             return np.logical_xor(im_, ime)
+#     elif edge_filter == 'erosion':  # erosion can sometimes delete the whole region
+#         def edge_filter_fun(im_):
+#             ime = binary_erosion(im_)
+#             return np.logical_xor(im_, ime)
+#     else:
+#         raise NotImplementedError(edge_filter)
+#
+#     video = __draw_contours_3d__(im, pred, gt, scale, colors, edge_filter_fun, line_width, line_width_gt, 0.5)
+#     del im
+#
+#     video = np.stack(video, axis=0)
+#     video = np.flip(video, axis=3)  # bgr -> rgb
+#     if save_avi:
+#         if square:
+#             video, new_sz = __square__(video, video.shape[1:3])
+#         else:
+#             new_sz = tuple(video.shape[1:3])
+#
+#         # FOURCC codes: http://www.fourcc.org/codecs.php : http://mp4ra.org/#/codecs
+#         frame_rate = min(frame_rate, max(1, int(video.shape[0] / 5)))
+#         if video.shape[0] > 3:
+#             __save_video__(join(dir_save, name + '.mp4'), video, frame_rate, quality=quality, new_sz=new_sz)
+#         else:
+#             save_jpg = True
+#
+#     if save_jpg:
+#         for z in range(n_slices):
+#             imwrite(join(dir_save, name + '-z' + str(z) + '.jpg'), video[z, :, :, :])
+#
+#     return
