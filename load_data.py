@@ -28,7 +28,7 @@ for image_file in image_files:
         image = np.load(image_file, allow_pickle=True)["arr_0"]
         meta_data = np.load(gzip.open(meta_dataname, 'rb'), allow_pickle=True)
 
-        masksname = join(base, "mask_" + pid_scanid + "/")
+        masksname = join(base, "masks_" + pid_scanid + "/")
         masks = []
 
         for filename in os.listdir(masksname):
