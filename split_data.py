@@ -24,7 +24,7 @@ def split_dataset(structures):
         body_part_folder = join(raw_data_folder, structure)
         files = os.listdir(join(body_part_folder, 'img'))
         for f in files:
-            if np.random.random() < 1:
+            if np.random.random() < 0.7:
                 root = join(body_part_folder, 'img', f)
                 result = list(Path(root).rglob("*.png"))
 
