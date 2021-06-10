@@ -60,11 +60,11 @@ for image_file in image_files:
             mask[b[0]: b[1], b[2]: b[3], b[4]: b[5]] = cropped_mask
 
             mask_rgb = (mask[:, :, :] * 255).astype(np.uint8)
-
             body_part_folder = join(raw_data_folder, body_part_name)
-            if not isdir(body_part_folder):
-                os.makedirs(join(body_part_folder, "img"))
-                os.makedirs(join(body_part_folder, "labelcol"))
+            pid_scanid_folder = join(body_part_folder, "img", pid, scanid)
+            if not isdir(pid_scanid_folder):
+                os.makedirs(join(body_part_folder, "img", pid, scanid))
+                os.makedirs(join(body_part_folder, "labelcol",  pid, scanid))
 
             x = image.shape[0]
 
