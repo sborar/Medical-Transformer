@@ -24,14 +24,16 @@ def split_dataset(structures):
         body_part_folder = join(raw_data_folder, structure)
         files = os.listdir(join(body_part_folder, 'img'))
         for f in files:
-            root = join(body_part_folder, 'img', f)
-            result = list(Path(root).rglob("*.png"))
+            img_root = join(body_part_folder, 'img', f)
+            label_root = join(body_part_folder, 'labelcol', f)
+            images = list(Path(img_root).rglob("*.png"))
+            labels = list(Path(label_root).rglob("*.png"))
             if np.random.random() < 0.7:
-                [copyfile(str(r), join(train_data_folder, 'img', str(r).split('/')[-1])) for r in result]
-                [copyfile(str(r), join(train_data_folder, 'labelcol', str(r).split('/')[-1])) for r in result]
+                [copyfile(str(r), join(train_data_folder, 'img', str(r).split('/')[-1])) for r in images]
+                [copyfile(str(r), join(train_data_folder, 'labelcol', str(r).split('/')[-1])) for r in labels]
             else:
-                [copyfile(str(r), join(test_data_folder, 'img', str(r).split('/')[-1])) for r in result]
-                [copyfile(str(r), join(test_data_folder, 'labelcol', str(r).split('/')[-1])) for r in result]
+                [copyfile(str(r), join(test_data_folder, 'img', str(r).split('/')[-1])) for r in images]
+                [copyfile(str(r), join(test_data_folder, 'labelcol', str(r).split('/')[-1])) for r in labels]
 
 
 split_dataset(['Brain'])
