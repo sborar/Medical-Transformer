@@ -1,7 +1,7 @@
 import torch
 from torch.nn.functional import cross_entropy
 from torch.nn.modules.loss import _WeightedLoss
-
+from torch impot nn
 
 EPSILON = 1e-32
 
@@ -20,6 +20,24 @@ class LogNLLLoss(_WeightedLoss):
                              ignore_index=self.ignore_index)
 
 
+class DiceLoss(nn.Module):
+    def __init__(self, weight=None, size_average=True):
+        super(DiceLoss, self).__init__()
+
+    def forward(self, inputs, targets, smooth=1):
+        # comment out if your model contains a sigmoid or equivalent activation layer
+        inputs = F.sigmoid(inputs)
+
+        # flatten label and prediction tensors
+        inputs = inputs.view(-1)
+        targets = targets.view(-1)
+
+        intersection = (inputs * targets).sum()
+        dice = (2. * intersection + smooth) / (inputs.sum() + targets.sum() + smooth)
+
+        return 1 - dice
+
+
 def classwise_iou(output, gt):
     """
     Args:
@@ -28,7 +46,7 @@ def classwise_iou(output, gt):
     """
     dims = (0, *range(2, len(output.shape)))
     gt = torch.zeros_like(output).scatter_(1, gt[:, None, :], 1)
-    intersection = output*gt
+    intersection = output * gt
     union = output + gt - intersection
     classwise_iou = (intersection.sum(dim=dims).float() + EPSILON) / (union.sum(dim=dims) + EPSILON)
 
@@ -82,14 +100,13 @@ def make_weighted_metric(classwise_metric):
 
         classwise_scores = classwise_metric(output, gt).cpu()
 
-        return classwise_scores 
+        return classwise_scores
 
     return weighted_metric
 
 
 jaccard_index = make_weighted_metric(classwise_iou)
 f1_score = make_weighted_metric(classwise_f1)
-
 
 if __name__ == '__main__':
     output, gt = torch.zeros(3, 2, 5, 5), torch.zeros(3, 5, 5).long()

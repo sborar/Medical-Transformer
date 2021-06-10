@@ -2,6 +2,8 @@ import numpy as np
 import os
 from os.path import join, isdir
 from shutil import copyfile
+from pathlib import Path
+
 
 raw_data_folder = "raw_dataset"
 
@@ -22,12 +24,15 @@ def split_dataset(structures):
         body_part_folder = join(raw_data_folder, structure)
         files = os.listdir(join(body_part_folder, 'img'))
         for f in files:
-            if np.random.random() < 0.7:
-                copyfile(join(body_part_folder, 'img', f), join(train_data_folder, 'img', f))
-                copyfile(join(body_part_folder, 'labelcol', f), join(train_data_folder, 'labelcol', f))
+            if np.random.random() < 1:
+                root = join(body_part_folder, 'img', f)
+                result = list(Path(root).rglob("*.png"))
+
+                [copyfile(str(r), join(train_data_folder, 'img', str(r).split('/')[-1])) for r in result]
+                [copyfile(str(r), join(train_data_folder, 'labelcol', str(r).split('/')[-1])) for r in result]
             else:
-                copyfile(join(body_part_folder, 'img', f), join(test_data_folder, 'img', f))
-                copyfile(join(body_part_folder, 'labelcol', f), join(test_data_folder, 'labelcol', f))
+                [copyfile(str(r), join(test_data_folder, 'img', str(r).split('/')[-1])) for r in result]
+                [copyfile(str(r), join(test_data_folder, 'labelcol', str(r).split('/')[-1])) for r in result]
 
 
 split_dataset(['Brain'])

@@ -23,6 +23,9 @@ from utils import chk_mkdir, Logger, MetricList
 import cv2
 from functools import partial
 from random import randint
+import logging
+
+logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
 
 
 parser = argparse.ArgumentParser(description='MedT')
@@ -32,7 +35,7 @@ parser.add_argument('--epochs', default=100, type=int, metavar='N',
                     help='number of total epochs to run(default: 1)')
 parser.add_argument('--start-epoch', default=0, type=int, metavar='N',
                     help='manual epoch number (useful on restarts)')
-parser.add_argument('-b', '--batch_size', default=1, type=int,
+parser.add_argument('-b', '--batch_size', default=30, type=int,
                     metavar='N', help='batch size (default: 8)')
 parser.add_argument('--learning_rate', default=1e-3, type=float,
                     metavar='LR', help='initial learning rate (default: 0.01)')
@@ -45,7 +48,7 @@ parser.add_argument('--val_dataset', type=str)
 parser.add_argument('--save_freq', type=int,default = 5)
 parser.add_argument('--modelname', default='off', type=str,
                     help='name of the model to load')
-parser.add_argument('--cuda', default="on", type=str, 
+parser.add_argument('--cuda', default="on", type=str,
                     help='switch on/off cuda option (default: off)')
 
 parser.add_argument('--direc', default='./results', type=str,
@@ -102,10 +105,11 @@ if torch.cuda.device_count() > 1:
   model = nn.DataParallel(model,device_ids=[0,1]).cuda()
 model.to(device)
 
+criterion = LogNLLLoss()
 model.load_state_dict(torch.load(loaddirec))
 model.eval()
 
-
+running_loss = 0
 for batch_idx, (X_batch, y_batch, *rest) in enumerate(valloader):
     # print(batch_idx)
     if isinstance(rest[0][0], str):
@@ -131,19 +135,26 @@ for batch_idx, (X_batch, y_batch, *rest) in enumerate(valloader):
     yHaT = tmp
     yval = tmp2
 
+    loss = criterion(y_out, y_batch)
+    running_loss += loss.item()
     epsilon = 1e-20
-    
+
     del X_batch, y_batch,tmp,tmp2, y_out
 
     yHaT[yHaT==1] =255
     yval[yval==1] =255
     fulldir = direc+"/"
-    
+
     if not os.path.isdir(fulldir):
-        
+
         os.makedirs(fulldir)
-   
+
     cv2.imwrite(fulldir+image_filename, yHaT[0,1,:,:])
+
+logging.info('loss:{:.4f}'
+                 .format(running_loss/(batch_idx+1)))
+
+
 
 
 
