@@ -1,7 +1,7 @@
 import torch
 from torch.nn.functional import cross_entropy
 from torch.nn.modules.loss import _WeightedLoss
-from torch impot nn
+from torch import nn
 
 EPSILON = 1e-32
 
