@@ -47,7 +47,7 @@ parser.add_argument('--weight-decay', '--wd', default=1e-5, type=float,
                     metavar='W', help='weight decay (default: 1e-5)')
 parser.add_argument('--train_dataset', required=True, type=str)
 parser.add_argument('--val_dataset', type=str)
-parser.add_argument('--save_freq', type=int,default = 10)
+parser.add_argument('--save_freq', type=int,default = 2)
 
 parser.add_argument('--modelname', default='MedT', type=str,
                     help='type of model')
@@ -202,7 +202,7 @@ for epoch in range(args.epochs):
 
             epsilon = 1e-20
 
-            del X_batch, y_batch,tmp,tmp2, y_out
+            del X_batch,y_batch,tmp,tmp2,y_out
 
 
             yHaT[yHaT==1] =255
