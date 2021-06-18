@@ -25,6 +25,7 @@ scans = set([file.split('_')[0] for file in files])
 # for every scan, change the Brain.pkz roi
 for scan in scans:
     image_files = glob.glob(join(base, scan + '*'))
+    image_files.sort(key=lambda x: int(x.split('_')[1].split('.')[0]))
     np_images = [asarray(Image.open(image_file).resize((512, 512))) for image_file in image_files]
     three_d_image = np.stack(np_images, axis=0)
 
@@ -32,13 +33,11 @@ for scan in scans:
     f = join(mask_dir, 'Brain.pkz')
 
     mask_data = np.load(gzip.open(f, 'rb'), allow_pickle=True)
-    bool_mask = three_d_image != 255
-
+    bool_mask = three_d_image == 255
     bbox = mask_data['bbox']
     b = [bbox[i] for i in [0, 3, 1, 4, 2, 5]]
     cropped_mask = bool_mask[b[0]: b[1], b[2]: b[3], b[4]: b[5]]
     mask_data['roi'] = cropped_mask
-    mask_data['shape'] = (437, 512, 512)
 
     # copy the masks in another folder and update the Brain.pkz file (including the predicted mask)
     try:
