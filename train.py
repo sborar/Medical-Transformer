@@ -20,7 +20,7 @@ from torchvision.utils import save_image
 import torch
 import torch.nn.init as init
 from utils import JointTransform2D, ImageToImage2D, Image2D
-from metrics import jaccard_index, f1_score, LogNLLLoss,classwise_f1
+from metrics import jaccard_index, f1_score, LogNLLLoss,classwise_f1, DiceLoss
 from utils import chk_mkdir, Logger, MetricList
 import cv2
 from functools import partial
@@ -110,7 +110,7 @@ if torch.cuda.device_count() > 1:
     model = nn.DataParallel(model,device_ids=[0,1])
 model.to(device)
 
-criterion = LogNLLLoss()
+criterion = DiceLoss()
 optimizer = torch.optim.Adam(list(model.parameters()), lr=args.learning_rate,
                              weight_decay=1e-5)
 
@@ -142,21 +142,28 @@ for epoch in range(args.epochs):
 
         output = model(X_batch)
 
-        tmp2 = y_batch.detach().cpu().numpy()
-        tmp = output.detach().cpu().numpy()
-        tmp[tmp>=0.5] = 1
-        tmp[tmp<0.5] = 0
-        tmp2[tmp2>0] = 1
-        tmp2[tmp2<=0] = 0
-        tmp2 = tmp2.astype(int)
-        tmp = tmp.astype(int)
+        # tmp2 = y_batch.detach().cpu().numpy()
+        # tmp = output.detach().cpu().numpy()
 
-        yHaT = tmp
-        yval = tmp2
+        # tmp2 = y_batch
+        # tmp = output
+        output[output>=0.5] = 1
+        output[output<0.5] = 0
+        y_batch[y_batch>0] = 1
+        y_batch[y_batch<=0] = 0
+        # y_batch = y_batch.int()
+        # output = output.int()
 
+        # yHaT = tmp
+        # yval = tmp2
 
+        output[output==1] =255
+        y_batch[y_batch==1] =255
 
-        loss = criterion(output, y_batch)
+        loss = criterion(output[:,1,:,:], y_batch[0,:,:])
+
+        # loss = criterion(output, y_batch)
+
 
         # ===================backward====================
         optimizer.zero_grad()

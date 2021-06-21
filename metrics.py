@@ -2,6 +2,7 @@ import torch
 from torch.nn.functional import cross_entropy
 from torch.nn.modules.loss import _WeightedLoss
 from torch import nn
+import torch.nn.functional as F
 
 EPSILON = 1e-32
 
@@ -21,19 +22,19 @@ class LogNLLLoss(_WeightedLoss):
 
 
 class DiceLoss(nn.Module):
-    def __init__(self, weight=None, size_average=True):
+    def __init__(self):
         super(DiceLoss, self).__init__()
 
-    def forward(self, inputs, targets, smooth=1):
+    def forward(self, outputs, targets, smooth=1):
         # comment out if your model contains a sigmoid or equivalent activation layer
-        inputs = F.sigmoid(inputs)
+        outputs = F.sigmoid(outputs)
 
         # flatten label and prediction tensors
-        inputs = inputs.view(-1)
+        outputs = outputs.view(-1)
         targets = targets.view(-1)
 
-        intersection = (inputs * targets).sum()
-        dice = (2. * intersection + smooth) / (inputs.sum() + targets.sum() + smooth)
+        intersection = (outputs * targets).sum()
+        dice = (2. * intersection + smooth) / (outputs.sum() + targets.sum() + smooth)
 
         return 1 - dice
 
