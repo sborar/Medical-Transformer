@@ -160,7 +160,7 @@ for epoch in range(args.epochs):
         output[output==1] =255
         y_batch[y_batch==1] =255
 
-        loss = criterion(output[:,1,:,:], y_batch[0,:,:])
+        loss = criterion(output[:,1,:,:], y_batch)
 
         # loss = criterion(output, y_batch)
 
