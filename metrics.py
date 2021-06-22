@@ -2,7 +2,6 @@ import torch
 from torch.nn.functional import cross_entropy
 from torch.nn.modules.loss import _WeightedLoss
 from torch import nn
-import torch.nn.functional as F
 
 EPSILON = 1e-32
 
@@ -26,17 +25,21 @@ class DiceLoss(nn.Module):
         super(DiceLoss, self).__init__()
 
     def forward(self, outputs, targets, smooth=1):
-        # comment out if your model contains a sigmoid or equivalent activation layer
-        # outputs = torch.sigmoid(outputs)
+        # # comment out if your model contains a sigmoid or equivalent activation layer
+        # # outputs = torch.sigmoid(outputs)
+        #
+        # # flatten label and prediction tensors
+        # outputs = outputs.contiguous().view(-1)
+        # targets = targets.view(-1)
+        #
+        # intersection = (outputs * targets).sum()
+        # dice = (2. * intersection + smooth) / (outputs.sum() + targets.sum() + smooth)
+        #
+        # return 1 - dice
 
-        # flatten label and prediction tensors
-        outputs = outputs.contiguous().view(-1)
-        targets = targets.view(-1)
-
-        intersection = (outputs * targets).sum()
-        dice = (2. * intersection + smooth) / (outputs.sum() + targets.sum() + smooth)
-
-        return 1 - dice
+        volume_sum = targets.sum() + outputs.sum() + smooth
+        volume_intersect = (targets.int() & outputs.int()).sum()
+        return 2*volume_intersect + smooth / volume_sum
 
 
 def classwise_iou(output, gt):
