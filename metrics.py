@@ -27,7 +27,7 @@ class DiceLoss(nn.Module):
 
     def forward(self, outputs, targets, smooth=1):
         # comment out if your model contains a sigmoid or equivalent activation layer
-        outputs = F.sigmoid(outputs)
+        # outputs = torch.sigmoid(outputs)
 
         # flatten label and prediction tensors
         outputs = outputs.view(-1)
