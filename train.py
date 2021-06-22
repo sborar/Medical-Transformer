@@ -129,6 +129,7 @@ torch.cuda.manual_seed(seed)
 for epoch in range(args.epochs):
     logging.info('epoch '+ str(epoch))
     epoch_running_loss = 0
+    epoch_running_dice_loss = 0
     model.train()
     for batch_idx, (X_batch, y_batch, *rest) in enumerate(dataloader):
 
@@ -142,25 +143,21 @@ for epoch in range(args.epochs):
 
         output = model(X_batch)
 
-        # tmp2 = y_batch.detach().cpu().numpy()
-        # tmp = output.detach().cpu().numpy()
+        tmp2 = y_batch.detach().cpu().numpy()
+        tmp = output.detach().cpu().numpy()
+        tmp[tmp>=0.5] = 1
+        tmp[tmp<0.5] = 0
+        tmp2[tmp2>0] = 1
+        tmp2[tmp2<=0] = 0
+        tmp2 = tmp2.astype(int)
+        tmp = tmp.astype(int)
 
-        # tmp2 = y_batch
-        # tmp = output
-        output[output>=0.5] = 1
-        output[output<0.5] = 0
-        y_batch[y_batch>0] = 1
-        y_batch[y_batch<=0] = 0
-        # y_batch = y_batch.int()
-        # output = output.int()
+        yHaT = tmp
+        yval = tmp2
 
-        # yHaT = tmp
-        # yval = tmp2
+        loss = criterion(output, y_batch)
 
-        output[output==1] =255
-        y_batch[y_batch==1] =255
-
-        loss = criterion(output[:,1,:,:], y_batch)
+        dice_loss = criterion(output[:,1,:,:], y_batch)
 
         # loss = criterion(output, y_batch)
 
@@ -170,11 +167,14 @@ for epoch in range(args.epochs):
         loss.backward()
         optimizer.step()
         epoch_running_loss += loss.item()
+        epoch_running_dice_loss += dice_loss.item()
 
     # ===================log========================
     logging.info('epoch [{}/{}], loss:{:.4f}'
           .format(epoch, args.epochs, epoch_running_loss/(batch_idx+1)))
 
+    logging.info('epoch [{}/{}], dice_loss:{:.4f}'
+                 .format(epoch, args.epochs, epoch_running_dice_loss/(batch_idx+1)))
 
     if epoch == 2:
         for param in model.parameters():
