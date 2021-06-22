@@ -30,7 +30,7 @@ class DiceLoss(nn.Module):
         # outputs = torch.sigmoid(outputs)
 
         # flatten label and prediction tensors
-        outputs = outputs.view(-1)
+        outputs = outputs.contiguous().view(-1)
         targets = targets.view(-1)
 
         intersection = (outputs * targets).sum()
