@@ -29,17 +29,17 @@ class DiceLoss(nn.Module):
         # # outputs = torch.sigmoid(outputs)
         #
         # # flatten label and prediction tensors
-        # outputs = outputs.contiguous().view(-1)
-        # targets = targets.view(-1)
-        #
-        # intersection = (outputs * targets).sum()
-        # dice = (2. * intersection + smooth) / (outputs.sum() + targets.sum() + smooth)
-        #
-        # return 1 - dice
+        outputs = outputs.contiguous().view(-1)
+        targets = targets.view(-1)
 
-        volume_sum = targets.sum() + outputs.sum() + smooth
-        volume_intersect = (targets.int() & outputs.int()).sum()
-        return 2*volume_intersect + smooth / volume_sum
+        intersection = (outputs * targets).sum()
+        dice = (2. * intersection + smooth) / (outputs.sum() + targets.sum() + smooth)
+
+        return 1 - dice
+
+        # volume_sum = targets.sum() + outputs.sum() + smooth
+        # volume_intersect = (targets.int() & outputs.int()).sum()
+        # return 2*volume_intersect + smooth / volume_sum
 
 
 def classwise_iou(output, gt):
