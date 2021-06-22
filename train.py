@@ -37,7 +37,7 @@ parser.add_argument('--epochs', default=15, type=int, metavar='N',
                     help='number of total epochs to run(default: 400)')
 parser.add_argument('--start-epoch', default=0, type=int, metavar='N',
                     help='manual epoch number (useful on restarts)')
-parser.add_argument('-b', '--batch_size', default=30, type=int,
+parser.add_argument('-b', '--batch_size', default=2, type=int,
                     metavar='N', help='batch size (default: 1)')
 parser.add_argument('--learning_rate', default=1e-3, type=float,
                     metavar='LR', help='initial learning rate (default: 0.001)')
@@ -63,7 +63,7 @@ parser.add_argument('--direc', default='./medt', type=str,
                     help='directory to save')
 parser.add_argument('--crop', type=int, default=None)
 parser.add_argument('--imgsize', type=int, default=128)
-parser.add_argument('--device', default='cuda', type=str)
+parser.add_argument('--device', default='cpu', type=str)
 parser.add_argument('--gray', default='no', type=str)
 
 args = parser.parse_args()
@@ -110,7 +110,8 @@ if torch.cuda.device_count() > 1:
     model = nn.DataParallel(model,device_ids=[0,1])
 model.to(device)
 
-criterion = DiceLoss()
+criterion1= LogNLLLoss()
+criterion2 = DiceLoss()
 optimizer = torch.optim.Adam(list(model.parameters()), lr=args.learning_rate,
                              weight_decay=1e-5)
 
@@ -155,9 +156,9 @@ for epoch in range(args.epochs):
         yHaT = tmp
         yval = tmp2
 
-        loss = criterion(output, y_batch)
+        loss = criterion1(output, y_batch)
 
-        dice_loss = criterion(output[:,1,:,:], y_batch)
+        dice_loss = criterion2(output[:,1,:,:], y_batch)
 
         # loss = criterion(output, y_batch)
 
