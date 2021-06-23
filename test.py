@@ -46,7 +46,7 @@ parser.add_argument('--weight-decay', '--wd', default=1e-5, type=float,
 parser.add_argument('--train_dataset',  type=str)
 parser.add_argument('--val_dataset', type=str)
 parser.add_argument('--save_freq', type=int,default = 5)
-parser.add_argument('--modelname', default='MedT', type=str,
+parser.add_argument('--modelname', default='gatedaxialunet', type=str,
                     help='name of the model to load')
 parser.add_argument('--cuda', default="on", type=str,
                     help='switch on/off cuda option (default: off)')
