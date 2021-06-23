@@ -28,7 +28,7 @@ class DiceLoss(nn.Module):
 
         # Threshold targs
         n = targets.shape[0]
-        outputs = outputs.argmax(dim=1).view(n,-1)
+        outputs = outputs.view(n,-1)
         targets = targets.view(n,-1)
 
         # Compute dice
