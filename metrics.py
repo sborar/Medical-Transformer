@@ -28,7 +28,7 @@ class DiceLoss(nn.Module):
 
         # Threshold targs
         n = targets.shape[0]
-        outputs = outputs.view(n,-1)
+        outputs = torch.Tensor(outputs[:,1,:,:]).view(n,-1)
         targets = targets.view(n,-1)
 
         # Compute dice

@@ -158,7 +158,7 @@ for epoch in range(args.epochs):
 
         loss = criterion1(output, y_batch)
 
-        dice_loss = criterion2(output[:,1,:,:], y_batch)
+        dice_loss = criterion2(yHaT, y_batch)
 
         # loss = criterion(output, y_batch)
 
