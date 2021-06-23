@@ -18,7 +18,7 @@ from torchvision.utils import save_image
 import torch
 import torch.nn.init as init
 from utils import JointTransform2D, ImageToImage2D, Image2D
-from metrics import jaccard_index, f1_score, LogNLLLoss,classwise_f1
+from metrics import jaccard_index, f1_score, LogNLLLoss,classwise_f1, DiceLoss
 from utils import chk_mkdir, Logger, MetricList
 import cv2
 from functools import partial
@@ -102,11 +102,13 @@ elif modelname == "logo":
 #   model = nn.DataParallel(model,device_ids=[0,1])
 model.to(device)
 
-criterion = LogNLLLoss()
+criterion1= LogNLLLoss()
+criterion2 = DiceLoss()
 model.load_state_dict(torch.load(loaddirec))
 model.eval()
 
 running_loss = 0
+running_dice_score = 0
 for batch_idx, (X_batch, y_batch, *rest) in enumerate(valloader):
     # print(batch_idx)
     if isinstance(rest[0][0], str):
@@ -132,14 +134,16 @@ for batch_idx, (X_batch, y_batch, *rest) in enumerate(valloader):
     yHaT = tmp
     yval = tmp2
 
-    loss = criterion(y_out, y_batch)
+    loss = criterion1(y_out, y_batch)
+    dice_score = criterion2(torch.Tensor(yHaT).to(device), y_batch)
+    # loss = criterion(y_out, y_batch)
     running_loss += loss.item()
+    running_dice_score += dice_score.item()
     epsilon = 1e-20
 
     del X_batch, y_batch,tmp,tmp2, y_out
 
-    yHaT[yHaT==1] =255
-    yval[yval==1] =255
+
     fulldir = direc+"/"
 
     if not os.path.isdir(fulldir):
@@ -150,6 +154,9 @@ for batch_idx, (X_batch, y_batch, *rest) in enumerate(valloader):
 
 logging.info('loss:{:.4f}'
                  .format(running_loss/(batch_idx+1)))
+
+logging.info('loss:{:.4f}'
+             .format(running_dice_score/(batch_idx+1)))
 
 
 
