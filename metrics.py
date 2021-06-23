@@ -25,21 +25,22 @@ class DiceLoss(nn.Module):
         super(DiceLoss, self).__init__()
 
     def forward(self, outputs, targets, smooth=1):
-        # # comment out if your model contains a sigmoid or equivalent activation layer
-        # # outputs = torch.sigmoid(outputs)
-        #
-        # # flatten label and prediction tensors
-        outputs = outputs.contiguous().view(-1)
-        targets = targets.view(-1)
 
-        intersection = (outputs * targets).sum()
-        dice = (2. * intersection + smooth) / (outputs.sum() + targets.sum() + smooth)
+        # Threshold targs
+        n = targets.shape[0]
+        outputs = outputs.argmax(dim=1).view(n,-1)
+        targets = targets.view(n,-1)
 
-        return 1 - dice
+        # Compute dice
+        intersect = (outputs * targets).sum(dim=1).float()
+        union = (outputs + targets).sum(dim=1).float()
+        dice = 2. * intersect / union
 
-        # volume_sum = targets.sum() + outputs.sum() + smooth
-        # volume_intersect = (targets.int() & outputs.int()).sum()
-        # return 2*volume_intersect + smooth / volume_sum
+        # Replace zero union values with 1
+        dice[union == 0.] = 1
+
+        # Return mean
+        return dice.mean()
 
 
 def classwise_iou(output, gt):
