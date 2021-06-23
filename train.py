@@ -144,8 +144,8 @@ for epoch in range(args.epochs):
 
         output = model(X_batch)
 
-        tmp2 = y_batch.detach().cpu().numpy()
-        tmp = output.detach().cpu().numpy()
+        tmp2 = y_batch.detach().to(device).numpy()
+        tmp = output.detach().to(device).numpy()
         tmp[tmp>=0.5] = 1
         tmp[tmp<0.5] = 0
         tmp2[tmp2>0] = 1
