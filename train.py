@@ -49,7 +49,7 @@ parser.add_argument('--train_dataset', required=True, type=str)
 parser.add_argument('--val_dataset', type=str)
 parser.add_argument('--save_freq', type=int,default = 2)
 
-parser.add_argument('--modelname', default='MedT', type=str,
+parser.add_argument('--modelname', default='gatedaxialunet', type=str,
                     help='type of model')
 parser.add_argument('--cuda', default="on", type=str, 
                     help='switch on/off cuda option (default: off)')
@@ -59,7 +59,7 @@ parser.add_argument('--load', default='default', type=str,
                     help='load a pretrained model')
 parser.add_argument('--save', default='default', type=str,
                     help='save the model')
-parser.add_argument('--direc', default='./medt', type=str,
+parser.add_argument('--direc', default='./axial', type=str,
                     help='directory to save')
 parser.add_argument('--crop', type=int, default=None)
 parser.add_argument('--imgsize', type=int, default=128)
@@ -130,7 +130,7 @@ torch.cuda.manual_seed(seed)
 for epoch in range(args.epochs):
     logging.info('epoch '+ str(epoch))
     epoch_running_loss = 0
-    epoch_running_dice_loss = 0
+    epoch_running_dice_score = 0
     model.train()
     for batch_idx, (X_batch, y_batch, *rest) in enumerate(dataloader):
 
@@ -158,7 +158,7 @@ for epoch in range(args.epochs):
 
         loss = criterion1(output, y_batch)
 
-        dice_loss = criterion2(torch.Tensor(yHaT).to(device), y_batch)
+        dice_score = criterion2(torch.Tensor(yHaT).to(device), y_batch)
 
         # loss = criterion(output, y_batch)
 
@@ -168,14 +168,14 @@ for epoch in range(args.epochs):
         loss.backward()
         optimizer.step()
         epoch_running_loss += loss.item()
-        epoch_running_dice_loss += dice_loss.item()
+        epoch_running_dice_score += dice_score.item()
 
     # ===================log========================
     logging.info('epoch [{}/{}], loss:{:.4f}'
           .format(epoch, args.epochs, epoch_running_loss/(batch_idx+1)))
 
     logging.info('epoch [{}/{}], dice_loss:{:.4f}'
-                 .format(epoch, args.epochs, epoch_running_dice_loss/(batch_idx+1)))
+                 .format(epoch, args.epochs, epoch_running_dice_score/(batch_idx+1)))
 
     if epoch == 2:
         for param in model.parameters():
