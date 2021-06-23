@@ -55,7 +55,7 @@ parser.add_argument('--direc', default='./results', type=str,
                     help='directory to save')
 parser.add_argument('--crop', type=int, default=None)
 parser.add_argument('--device', default='cuda', type=str)
-parser.add_argument('--loaddirec', default='medtfinal_model.pth', type=str)
+parser.add_argument('--loaddirec', default='axialfinal_model.pth', type=str)
 parser.add_argument('--imgsize', type=int, default=128)
 parser.add_argument('--gray', default='no', type=str)
 args = parser.parse_args()
