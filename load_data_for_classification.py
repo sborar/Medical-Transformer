@@ -58,8 +58,11 @@ for image_file in image_files:
         shape = mask_data['shape']  # shape of scan
         bbox = mask_data['bbox']
         cropped_mask = mask_data['roi']
-
-        if not cropped_mask:
+        body_part_name = mask_data['name']
+        
+        x = image.shape[0]
+        body_part_folder = join(raw_data_folder, body_part_name)
+        if cropped_mask is None:
 
             for i in range(x):
                 img_name = join(body_part_folder, 'img', pid, scanid, pid_scanid + "_" + str(i) + ".png")
@@ -67,8 +70,6 @@ for image_file in image_files:
                 img_data.loc[count, body_part_name] = -1
                 count += 1
             continue
-
-        body_part_name = mask_data['name']
 
         mask = np.zeros(shape, dtype=np.bool)
         try:
@@ -78,13 +79,10 @@ for image_file in image_files:
             z_max = bbox[3]
 
             mask_rgb = (mask[:, :, :] * 255).astype(np.uint8)
-            body_part_folder = join(raw_data_folder, body_part_name)
             pid_scanid_folder = join(body_part_folder, "img", pid, scanid)
             if not isdir(pid_scanid_folder):
                 os.makedirs(join(body_part_folder, "img", pid, scanid))
                 os.makedirs(join(body_part_folder, "labelcol", pid, scanid))
-
-            x = image.shape[0]
 
             # img_data.
 
