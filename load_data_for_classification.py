@@ -63,7 +63,7 @@ for image_file in image_files:
         x = image.shape[0]
         body_part_folder = join(raw_data_folder, body_part_name)
         if cropped_mask is None:
-
+            print('roi is none')
             for i in range(x):
                 img_name = join(body_part_folder, 'img', pid, scanid, pid_scanid + "_" + str(i) + ".png")
                 img_data.loc[count, 'img'] = img_name
